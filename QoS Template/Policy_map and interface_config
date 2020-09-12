@@ -1,0 +1,78 @@
+#macro (int_service_policy, $access_interfaces)
+#foreach ($access_interface in $access_interfaces)
+  interface $access_interface
+  service-policy input EdgeMark2
+#end
+#end
+
+#if ($model.matches("^(C9500L?-0?[1-9]|[1-9]?.*)$") || ("^(WS-C3850-0?[1-9]|[1-9]?.*)$") || ("^(C9300L?-0?[1-9]|[1-9]?.*)$") )
+policy-map EdgeMark2
+class Internet
+police cir percent 100 conform-action transmit
+exceed-action transmit
+class Bronze
+set dscp cs2
+class Gold
+set dscp cs4
+class Platinum
+set dscp ef
+class IP_Video
+set dscp af41
+class Silver
+set dscp cs3
+class Mcast
+set dscp af11
+class Iron
+set dscp cs1
+class class-default
+set dscp default
+
+#int_service_policy($access_interface)
+
+#elseif ($model.matches("^(3560CX-0?[1-9]|[2]?.*)$") || ("^(WS-C3750X|G|v2-0?[1-9]|[1-9]?.*)$") || ("^(IE 3000-0?[1-9].*)$") || ("^(SM-X-ES3D?-[1-9][1-9].*)$") )
+policy-map EdgeMark2
+class Internet
+trust dscp
+class Bronze
+set dscp cs2
+class Gold
+set dscp cs4
+class Platinum
+set dscp ef
+class IP_Video
+set dscp af41
+class Silver
+set dscp cs3
+class Mcast
+set dscp af11
+class Iron
+set dscp cs1
+class class-default
+set dscp default
+
+#int_service_policy($access_interface)
+
+#elseif ($model.matches("^(WS-C45[0|1][1-9]-.*)$") )
+policy-map EdgeMark2
+class Internet
+set dscp dscp
+class Bronze
+set dscp cs2
+class Gold
+set dscp cs4
+class Platinum
+set dscp ef
+class IP_Video
+set dscp af41
+class Silver
+set dscp cs3
+class Mcast
+set dscp af11
+class Iron
+set dscp cs1
+class class-default
+set dscp default
+
+#int_service_policy($access_interface)
+
+#end

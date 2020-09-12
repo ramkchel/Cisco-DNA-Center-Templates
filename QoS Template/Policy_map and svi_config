@@ -1,0 +1,43 @@
+#macro (svi_service_policy, $vlans)
+#foreach ($vlan_id in $vlans)
+  interface vlan $vlan_id
+  service-policy type qos input EdgeMark2 no-stats
+#end
+#end
+
+
+#if ($model.matches("^(N9K-C93.*)$") || ("^(N9K-C95.*)$") )
+policy-map type qos EdgeMark2
+class Tin
+set dscp 0
+set qos-group 1
+class Internet
+set dscp 48
+set qos-group 3
+class Bronze
+set dscp 16
+set qos-group 2
+class Gold
+set dscp 32
+set qos-group 2
+class Platinum
+set dscp 46
+set qos-group 3
+class IP_Video
+set dscp 34
+set qos-group 2
+class Silver
+set dscp 24
+set qos-group 2
+class Mcast
+set dscp 10
+set qos-group 2
+class Iron
+set dscp 8
+set qos-group 2
+class class-default
+set dscp 0
+
+#svi_service_policy($vlans)
+
+#end

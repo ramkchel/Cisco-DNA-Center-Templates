@@ -1,0 +1,187 @@
+#set ( $aclId = $inputaclid )
+
+#foreach ($num_acl in [1..$max_acl])
+#set($index=$num_acl - 1)
+#if ($aclId.get($index) == "141")
+access-list $aclId.get($index) remark * Iron class - Interactive Queue (IP Precedence 1)
+access-list $aclId.get($index) remark * Iron class - Interactive Queue (IP Precedence 1)
+access-list $aclId.get($index) remark - generic TCP traffic, excludes Internet web & C3P Metaphase Mux
+access-list $aclId.get($index) remark - Public Internet proxy HTTP/HTTPS excluded (drops to default queue)
+access-list $aclId.get($index) deny tcp any any eq 83
+access-list $aclId.get($index) deny tcp any eq 83 any
+access-list $aclId.get($index) remark - C3P & TSM bulk traffic
+access-list $aclId.get($index) deny tcp any any eq 4544
+access-list $aclId.get($index) deny tcp any eq 4544 any
+access-list $aclId.get($index) deny tcp any any eq 16016
+access-list $aclId.get($index) deny tcp any eq 16016 any
+access-list $aclId.get($index) deny tcp any any range 1500 1504
+access-list $aclId.get($index) deny tcp any range 1500 1504 any
+access-list $aclId.get($index) remark - MX2 Handhelds (intentionally one way)
+access-list $aclId.get($index) deny tcp any range 4000 4050 any
+access-list $aclId.get($index) remark - The following permit catches any non-excluded TCP
+access-list $aclId.get($index) permit tcp any any
+access-list $aclId.get($index) remark - SNMP traffic from NetOps Mgt subnet with CS1 *
+access-list $aclId.get($index) permit udp 19.97.9.0 0.0.0.255 any eq snmp
+access-list $aclId.get($index) permit udp any eq snmp 19.97.9.0 0.0.0.255
+access-list $aclId.get($index) permit udp any 19.97.9.0 0.0.0.255 eq snmptrap
+
+class-map match-any Iron
+match access-group $aclId.get($index)
+
+#elseif ($aclId.get($index) == "142")
+access-list $aclId.get($index) remark * Bronze class - Interactive Queue (IP Precedence 2)
+access-list $aclId.get($index) remark - DNS query/response, Pinnacle
+access-list $aclId.get($index) permit udp any any eq domain
+access-list $aclId.get($index) permit udp any eq domain any
+access-list $aclId.get($index) remark - HTTP traffic (within Ford only)
+access-list $aclId.get($index) permit tcp any any eq www
+access-list $aclId.get($index) permit tcp any eq www any
+access-list $aclId.get($index) remark - SSL Web traffic
+access-list $aclId.get($index) permit tcp any any eq 443
+access-list $aclId.get($index) permit tcp any eq 443 any
+access-list $aclId.get($index) deny tcp any any lt 1024
+access-list $aclId.get($index) deny tcp any lt 1024 any
+access-list $aclId.get($index) permit tcp any any eq 8058
+access-list $aclId.get($index) permit tcp any eq 8058 any
+
+class-map match-any Bronze
+match access-group $aclId.get($index)
+
+#elseif ($aclId.get($index) == "143")
+access-list $aclId.get($index) remark * Silver class - Video Queue (IP Precedence 3)
+access-list $aclId.get($index) remark - Exclude low ports to reduce false triggers on
+access-list $aclId.get($index) remark client random ephemeral ports
+access-list $aclId.get($index) deny udp any any lt 1024
+access-list $aclId.get($index) deny udp any lt 1024 any
+access-list $aclId.get($index) deny tcp any any lt 1024
+access-list $aclId.get($index) deny tcp any lt 1024 any
+access-list $aclId.get($index) remark - Devices allowed into the video queue are trusted
+access-list $aclId.get($index) remark at source and mark IP Prec 3. Adding "precedence flash"
+access-list $aclId.get($index) remark to permits excludes unplanned usage of queue.
+access-list $aclId.get($index) remark - H.225 RAS
+access-list $aclId.get($index) permit udp any any eq 1719 precedence flash
+access-list $aclId.get($index) permit udp any eq 1719 any precedence flash
+access-list $aclId.get($index) remark - H.323 control traffic
+access-list $aclId.get($index) permit tcp any any eq 1720 precedence flash
+access-list $aclId.get($index) permit tcp any eq 1720 any precedence flash
+access-list $aclId.get($index) remark - H.245 control traffic
+access-list $aclId.get($index) permit tcp any any range 5555 5560 precedence flash
+access-list $aclId.get($index) permit tcp any range 5555 5560 any precedence flash
+access-list $aclId.get($index) permit tcp any any range 11000 11999 precedence flash
+access-list $aclId.get($index) permit tcp any range 11000 11999 any precedence flash
+access-list $aclId.get($index) remark - SCCP (skinny) traffic
+access-list $aclId.get($index) permit tcp any any range 2000 2002 precedence flash
+access-list $aclId.get($index) remark - Video & Audio RTCP traffics, MGCP (UDP:2427)
+access-list $aclId.get($index) permit tcp any any range 2326 2331 precedence flash
+access-list $aclId.get($index) permit tcp any range 2326 2331 any precedence flash
+access-list $aclId.get($index) permit udp any any range 2327 2499 precedence flash
+access-list $aclId.get($index) permit udp any range 2327 2499 any precedence flash
+access-list $aclId.get($index) remark - Secure SCCP (skinny) traffic
+access-list $aclId.get($index) permit tcp any any eq 2443 precedence flash
+access-list $aclId.get($index) remark - Secure and non-secure SIP traffic
+access-list $aclId.get($index) permit tcp any any range 5060 5061 precedence flash
+access-list $aclId.get($index) permit tcp any range 5060 5061 any precedence flash
+access-list $aclId.get($index) permit udp any any range 5060 5061 precedence flash
+access-list $aclId.get($index) permit udp any range 5060 5061 any precedence flash
+access-list $aclId.get($index) remark - Avaya IP telephony control signaling
+access-list $aclId.get($index) permit tcp any any range 5010 5012 precedence flash
+access-list $aclId.get($index) permit tcp any range 5010 5012 any precedence flash
+
+class-map match-any Silver
+match access-group $aclId.get($index)
+
+#elseif ($aclId.get($index) == "144")
+access-list $aclId.get($index) remark * Gold class - Interactive Queue (IP Precedence 4)
+access-list $aclId.get($index) remark - SQL Oracle
+access-list $aclId.get($index) permit tcp any any eq 66
+access-list $aclId.get($index) permit tcp any eq 66 any
+access-list $aclId.get($index) permit tcp any any eq 1521
+access-list $aclId.get($index) permit tcp any eq 1521 any
+access-list $aclId.get($index) permit tcp any any range 1527 1529
+access-list $aclId.get($index) permit tcp any range 1527 1529 any
+access-list $aclId.get($index) remark - SQL Microsoft
+access-list $aclId.get($index) permit tcp any any eq $aclId.get($index)3
+access-list $aclId.get($index) permit tcp any eq $aclId.get($index)3 any
+access-list $aclId.get($index) permit tcp any any eq 1533
+access-list $aclId.get($index) permit tcp any eq 1533 any
+access-list $aclId.get($index) permit tcp any any eq 1633
+access-list $aclId.get($index) permit tcp any eq 1633 any
+access-list $aclId.get($index) permit tcp any any range 6$aclId.get($index)5 6$aclId.get($index)9
+access-list $aclId.get($index) permit tcp any range 6$aclId.get($index)5 6$aclId.get($index)9 any
+access-list $aclId.get($index) remark - DeviseWise
+access-list $aclId.get($index) permit tcp any any eq 7279
+access-list $aclId.get($index) permit tcp any eq 7279 any
+access-list $aclId.get($index) permit tcp any any eq 9711
+access-list $aclId.get($index) permit tcp any eq 9711 any
+access-list $aclId.get($index) permit tcp any any eq 9812
+access-list $aclId.get($index) permit tcp any eq 9812 any
+access-list $aclId.get($index) remark - Telnet
+access-list $aclId.get($index) permit tcp any eq telnet any
+access-list $aclId.get($index) permit tcp any any eq telnet
+access-list $aclId.get($index) remark - Altel TN3270
+access-list $aclId.get($index) permit tcp any any eq 1023
+access-list $aclId.get($index) permit tcp any eq 1023 any
+access-list $aclId.get($index) deny tcp any any lt 1024
+access-list $aclId.get($index) deny tcp any lt 1024 any
+access-list $aclId.get($index) remark - Ford TN3270
+access-list $aclId.get($index) permit tcp any any eq 5031
+access-list $aclId.get($index) permit tcp any eq 5031 any
+access-list $aclId.get($index) remark - Deny multicast and mark lightweight wireless CAPWAP control traffic
+access-list $aclId.get($index) deny udp any 224.0.0.0 15.255.255.255
+access-list $aclId.get($index) permit udp any any eq 5246
+access-list $aclId.get($index) permit udp any eq 5246 any
+access-list $aclId.get($index) remark - Radius authentication
+access-list $aclId.get($index) permit udp any any eq 1812
+access-list $aclId.get($index) permit udp any eq 1812 any
+access-list $aclId.get($index) permit udp any any eq 1645
+access-list $aclId.get($index) permit udp any eq 1645 any
+
+class-map match-any Gold
+match access-group $aclId.get($index)
+
+#elseif ($aclId.get($index) == "145")
+access-list $aclId.get($index) remark * Platinum class - Voice Queue (IP Precedence 5)
+access-list $aclId.get($index) remark - Exclude low ports to reduce false triggers on client random ephemeral ports
+access-list $aclId.get($index) deny udp any any lt 1024
+access-list $aclId.get($index) deny udp any lt 1024 any
+access-list $aclId.get($index) remark - voice RTP packets
+access-list $aclId.get($index) permit udp any any range 16384 32767 dscp ef
+access-list $aclId.get($index) permit udp any range 16384 32767 any dscp ef
+
+class-map match-any Platinum
+match access-group $aclId.get($index)
+
+#elseif ($aclId.get($index) == "146")
+access-list $aclId.get($index) remark * Internet class - Routing Queue (Trust Marking)
+access-list $aclId.get($index) remark - Routing protocols: OSPF, EIGRP, BGP
+access-list $aclId.get($index) permit ospf any any
+access-list $aclId.get($index) permit eigrp any any
+access-list $aclId.get($index) permit tcp any any eq bgp
+access-list $aclId.get($index) permit tcp any eq bgp any
+access-list $aclId.get($index) remark - Lightweight wireless CAPWAP data traffic
+access-list $aclId.get($index) permit udp any any eq 5247
+access-list $aclId.get($index) permit udp any eq 5247 any
+
+class-map match-any Internet
+match access-group $aclId.get($index)
+
+#elseif ($aclId.get($index) == "148")
+access-list $aclId.get($index) remark * Mcast class - Interactive Queue (IP Precedence 1)
+access-list $aclId.get($index) permit udp any 239.80.0.0 0.0.0.127
+
+class-map match-any Mcast
+match access-group $aclId.get($index)
+
+#elseif ($aclId.get($index) == "149")
+access-list $aclId.get($index) remark * IP_Video class - Video Queue (IP Precedence 4)
+access-list $aclId.get($index) remark - Exclude low ports to reduce false triggers on client random ephemeral ports
+access-list $aclId.get($index) deny udp any any lt 1024
+access-list $aclId.get($index) deny udp any lt 1024 any
+access-list $aclId.get($index) permit udp any any range 2326 2498 dscp af41
+access-list $aclId.get($index) permit udp any range 2326 2498 any dscp af41
+
+class-map match-any IP_Video
+match access-group $aclId.get($index)
+
+#end
+#end
