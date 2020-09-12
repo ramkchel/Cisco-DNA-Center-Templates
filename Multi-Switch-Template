@@ -1,0 +1,38 @@
+#set ( $vlanId = $inputvlanid )
+#set ( $vlanDescription = $inputvlandescription )
+#set ( $sviIPAddress = $inputsviIP)
+
+#foreach ($num_vlan in [1..$max_vlan])
+#set($index=$num_vlan - 1)
+vlan $vlanId.get($index)
+name $vlanDescription.get($index)
+interface vlan $vlanId.get($index)
+description vlan $vlanDescription.get($index)
+ip address $sviIPAddress.get($index) $sviMask
+#end
+
+#foreach ($access_interface in $access_interfaces)
+  interface $access_interface
+  switchport access vlan $data_vlan
+  switchport mode access
+  switchport voice vlan $voice_vlan
+#end
+
+#foreach ($trunk_interface in $trunk_interfaces)
+  interface $trunk_interface
+  description $Trunk_Port_Description
+  switchport mode trunk
+  switchport trunk allowed vlan $trunk_vlans
+#end
+
+#foreach ($ap_interface in $ap_interfaces)
+  interface $ap_interface
+  switchport access vlan $ap_vlan
+  switchport mode access
+#end
+
+#foreach ($wlc_interface in $wlc_interfaces)
+  interface $wlc_interface
+  switchport mode trunk
+  switchport trunk allowed vlan $wlc_vlans
+#end
