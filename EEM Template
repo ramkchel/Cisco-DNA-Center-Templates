@@ -1,0 +1,72 @@
+##########EEM Shutdown Template###############
+
+#macro (eem_port_shutdown $voip_interface)
+#if ($voip_interface.portName == "GigabitEthernet1/0/3")
+event manager applet PowerOff authorization bypass
+   event timer cron cron-entry "0 22 * * *"
+   action 0.0 cli command "enable"
+   action 1.0 cli command "conf t"
+   action 1.1 cli command "interface GigabitEthernet1/0/3"
+   action 1.2 cli command "shutdown"
+   action 1.3 cli command "end"
+   
+#elseif ($voip_interface.portName == "GigabitEthernet1/0/4")
+event manager applet PowerOff authorization bypass
+   event timer cron cron-entry "0 22 * * *"
+   action 0.0 cli command "enable"
+   action 1.0 cli command "conf t"
+   action 1.1 cli command "interface GigabitEthernet1/0/4"
+   action 1.2 cli command "shutdown"
+   action 1.3 cli command "end"
+#end
+#end
+
+#foreach ($interface in $interfaces)
+  #if ($interface.description == "voip" || $interface.description == "accesspoint")
+    #eem_port_shutdown($interface)
+  #end
+#end
+
+
+
+
+
+##########EEM No Shutdown Template###############
+
+#macro (eem_port_noshutdown $voip_interface)
+#if ($voip_interface == "GigabitEthernet1/0/3")
+event manager applet PowerOn authorization bypass
+   event timer cron cron-entry "0 7 * * 1-6"
+   action 0.0 cli command "enable"
+   action 1.0 cli command "conf t"
+   action 1.1 cli command "interface GigabitEthernet1/0/3"
+   action 1.2 cli command "shutdown"
+   action 1.3 cli command "end"
+   
+#elseif ($voip_interface == "GigabitEthernet1/0/4")
+event manager applet PowerOn authorization bypass
+   event timer cron cron-entry "0 7 * * 1-6"
+   action 0.0 cli command "enable"
+   action 1.0 cli command "conf t"
+   action 1.1 cli command "interface GigabitEthernet1/0/4"
+   action 1.2 cli command "shutdown"
+   action 1.3 cli command "end"
+#end
+#end
+
+#foreach ($interface in $interfaces)
+  #if ($interface.description == "voip")
+    #eem_port_shutdown($interface)
+  #end
+#end
+
+
+##########EEM Template(Interface Range)###############
+
+event manager applet PowerOff authorization bypass
+   event timer cron cron-entry "0 22 * * *"
+   action 0.0 cli command "enable"
+   action 1.0 cli command "conf t"
+   action 1.1 cli command "interface range GigabitEthernet1/0/1- 5"
+   action 1.2 cli command "shutdown"
+   action 1.3 cli command "end"
